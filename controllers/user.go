@@ -24,10 +24,22 @@ func NewUserController(p Pages, us *service.UserService, ss *service.SessionServ
 	}
 }
 
-func (uc *UserController) SignIn(c *gin.Context) {
+func (uc *UserController) SignUp(c *gin.Context) {
 
 }
 
 func (uc *UserController) CreateUser(c *gin.Context) {
+
+}
+
+func (uc *UserController) SignIn(c *gin.Context) {
+
+}
+
+func (uc *UserController) ProcessSignIn(c *gin.Context) {
+
+}
+
+func (uc *UserController) CurrentUser(c *gin.Context) {
 
 }
