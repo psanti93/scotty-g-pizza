@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
+
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 type Postgres struct {
@@ -26,15 +28,15 @@ func DefaultConfig() Postgres {
 }
 
 func Open(c Postgres) (*sql.DB, error) {
-	sql, err := sql.Open("pgx", c.String())
+	db, err := sql.Open("pgx", c.String())
 	if err != nil {
 		fmt.Errorf("Open: %v", err)
 	}
 
-	return sql, nil
+	return db, nil
 }
 
 func (c Postgres) String() string {
-	return fmt.Sprintf("host=%s,port=%s,user=%s,password=%s,dbname=%s,sslmode=%s", c.Host, c.Port,
-		c.User, c.Password, c.Port, c.SSLMode)
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", c.Host, c.Port,
+		c.User, c.Password, c.DBName, c.SSLMode)
 }
