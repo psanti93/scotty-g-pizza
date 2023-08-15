@@ -7,6 +7,7 @@ import (
 	"github.com/psanti93/scotty-g-pizza/controllers"
 	"github.com/psanti93/scotty-g-pizza/db"
 	"github.com/psanti93/scotty-g-pizza/pages"
+	"github.com/psanti93/scotty-g-pizza/service"
 	"github.com/psanti93/scotty-g-pizza/views"
 )
 
@@ -15,6 +16,7 @@ func main() {
 	tpl := views.Must(views.ParseFS(pages.FS, "home.gohtml", "base-page.gohtml"))
 	r.GET("/", controllers.StaticHandler(tpl))
 
+	// TODO have database configuration set up on init
 	dbCfg := db.DefaultConfig()
 	db, err := db.Open(dbCfg)
 
@@ -27,6 +29,22 @@ func main() {
 	if err := db.Ping(); err != nil {
 		panic(err)
 	}
+
+	signUpPage := views.Must(views.ParseFS(pages.FS, "signup.gohtml", "base-page.gohtml"))
+	signInPage := views.Must(views.ParseFS(pages.FS, "signin.gohtml", "base-page.gohtml"))
+	pages := controllers.Pages{
+		SignIn: signInPage,
+		SignUp: signUpPage,
+	}
+	us := service.NewUserService(db)
+
+	uc := controllers.NewUserController(pages, us, nil)
+
+	r.GET("/signup", uc.SignUp())
+	r.POST("/signup", uc.CreateUser())
+
+	r.GET("/signin", uc.SignIn())
+	r.POST("/signin", uc.ProcessSignIn())
 
 	r.Run(":8081")
 }
