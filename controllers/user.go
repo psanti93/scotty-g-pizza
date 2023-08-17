@@ -38,13 +38,17 @@ func (uc *UserController) SignUp() gin.HandlerFunc {
 
 func (uc *UserController) CreateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		email := c.PostForm("email")
-		password := c.PostForm("password")
-		user := service.User{
-			Email:         email,
-			Password_Hash: password,
+		email := c.Request.FormValue("email")
+		password := c.Request.FormValue("password")
+
+		user, err := uc.UserService.Create(email, password)
+
+		if err != nil {
+			http.Error(c.Writer, "Something went wrong", http.StatusInternalServerError)
+			return
 		}
-		c.JSON(http.StatusOK, user)
+
+		c.JSON(http.StatusOK, "User was created: "+user.Email)
 	}
 
 }
@@ -57,6 +61,17 @@ func (uc *UserController) SignIn() gin.HandlerFunc {
 
 func (uc *UserController) ProcessSignIn() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		email := c.Request.FormValue("email")
+		password := c.Request.FormValue("password")
+
+		user, err := uc.UserService.Authenticate(email, password)
+
+		if err != nil {
+			http.Error(c.Writer, "Something went wrong: User doesn't exist", http.StatusInternalServerError)
+			return
+		}
+
+		c.JSON(http.StatusOK, "User authenticated: "+user.Email)
 	}
 
 }

@@ -53,17 +53,18 @@ func (us *UserService) Authenticate(email, password string) (*User, error) {
 	user := User{
 		Email: email,
 	}
-	row := us.DB.QueryRow(`SELECT id,password_hash FROM users WHERE email=$1`, user.Email)
+
+	row := us.DB.QueryRow(`SELECT id, password_hash FROM users WHERE email=$1`, email)
 	err := row.Scan(&user.ID, &user.Password_Hash)
 
 	if err != nil {
-		fmt.Errorf("Authenticate user: %v", err)
+		return nil, fmt.Errorf("Authenticate user: %v", err)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password_Hash), []byte(password))
 
 	if err != nil {
-		fmt.Errorf("authenticate user: %v", err)
+		return nil, fmt.Errorf("authenticate user: %v", err)
 	}
 
 	return &user, nil
