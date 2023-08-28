@@ -96,5 +96,19 @@ func (uc *UserController) ProcessSignIn() gin.HandlerFunc {
 func (uc *UserController) CurrentUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		token, err := readCookie(c.Request, CookieSession)
+		if err != nil {
+			http.Error(c.Writer, "Unable to read cookie", http.StatusNotFound)
+			return
+		}
+
+		user, err := uc.SessionService.CurrentSession(token)
+
+		if err != nil {
+			http.Redirect(c.Writer, c.Request, "/signup", http.StatusFound)
+			return
+		}
+
+		c.JSON(http.StatusOK, "Current User: "+user.Email)
 	}
 }

@@ -46,6 +46,7 @@ func main() {
 
 	r.GET("/signin", uc.SignIn())
 	r.POST("/signin", uc.ProcessSignIn())
+	//TODO create current user url
 
 	r.Run(":8081")
 }
