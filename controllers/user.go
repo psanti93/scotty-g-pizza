@@ -54,16 +54,7 @@ func (uc *UserController) CreateUser() gin.HandlerFunc {
 			return
 		}
 
-		// TODO Implement Cookies package
-
-		cookie := http.Cookie{
-			Name:     "pizza-cookie",
-			Value:    session.Token.Session_Token,
-			Path:     c.Request.URL.Path,
-			HttpOnly: false,
-		}
-
-		http.SetCookie(c.Writer, &cookie)
+		setCookie(c.Writer, c.Request, CookieSession, session.Token.Session_Token)
 
 		c.JSON(http.StatusOK, "User was created: "+user.Email)
 	}
@@ -95,15 +86,7 @@ func (uc *UserController) ProcessSignIn() gin.HandlerFunc {
 			return
 		}
 
-		// TODO Implement Cookies package
-		cookie := http.Cookie{
-			Name:     "pizza-cookie",
-			Value:    session.Token.Session_Token,
-			Path:     c.Request.URL.Path,
-			HttpOnly: false,
-		}
-
-		http.SetCookie(c.Writer, &cookie)
+		setCookie(c.Writer, c.Request, CookieSession, session.Token.Session_Token)
 
 		c.JSON(http.StatusOK, "User authenticated: "+user.Email)
 	}
