@@ -37,8 +37,9 @@ func main() {
 		SignUp: signUpPage,
 	}
 	us := service.NewUserService(db)
+	ss := service.NewSessionService(db)
 
-	uc := controllers.NewUserController(pages, us, nil)
+	uc := controllers.NewUserController(pages, us, ss)
 
 	r.GET("/signup", uc.SignUp())
 	r.POST("/signup", uc.CreateUser())
