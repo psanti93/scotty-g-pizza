@@ -47,6 +47,21 @@ func (uc *UserController) CreateUser() gin.HandlerFunc {
 			http.Error(c.Writer, "Something went wrong", http.StatusInternalServerError)
 			return
 		}
+		session, err := uc.SessionService.NewSession(user.ID)
+
+		if err != nil {
+			http.Error(c.Writer, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		cookie := http.Cookie{
+			Name:     "pizza-cookie",
+			Value:    session.Token.Session_Token,
+			Path:     c.Request.URL.Path,
+			HttpOnly: false,
+		}
+
+		http.SetCookie(c.Writer, &cookie)
 
 		c.JSON(http.StatusOK, "User was created: "+user.Email)
 	}
@@ -71,11 +86,29 @@ func (uc *UserController) ProcessSignIn() gin.HandlerFunc {
 			return
 		}
 
+		session, err := uc.SessionService.NewSession(user.ID)
+
+		if err != nil {
+			http.Error(c.Writer, "Something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		cookie := http.Cookie{
+			Name:     "pizza-cookie",
+			Value:    session.Token.Session_Token,
+			Path:     c.Request.URL.Path,
+			HttpOnly: false,
+		}
+
+		http.SetCookie(c.Writer, &cookie)
+
 		c.JSON(http.StatusOK, "User authenticated: "+user.Email)
 	}
 
 }
 
-func (uc *UserController) CurrentUser(c *gin.Context) {
+func (uc *UserController) CurrentUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
 
+	}
 }
