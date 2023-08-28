@@ -1,12 +1,18 @@
 package service
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
+
+const (
+	DefaultBytes = 32
+)
 
 type Session struct {
-	ID        int
-	UserID    int
-	Token     string
-	TokenHash string
+	ID     int
+	UserID int
+	Token  *Token
 }
 
 type SessionService struct {
@@ -20,27 +26,46 @@ func NewSessionService(db *sql.DB) *SessionService {
 }
 
 // NewSession creates a new session whenever a user signs in
-func (ss *SessionService) NewSession(userId int) {
-	//TODO: Save session whenever we sign in
-	//1. Create Token Hash
+func (ss *SessionService) NewSession(userId int) (*Session, error) {
 
-	//2. Create a new session object with USER_ID, TOKEN, and TOKEN HASH
+	sessionToken, err := GenerateToken(DefaultBytes)
 
-	//3. Insert New Session into tb
+	if err != nil {
+		return nil, fmt.Errorf("Error generating token: %v", err)
+	}
 
-	//4. UPDATE later with ON Conflict
+	var session = Session{
+		UserID: userId,
+		Token:  sessionToken,
+	}
 
+	row := ss.DB.QueryRow(`INSERT INTO sessions(user_id,token_hash) VALUES($1,$2)
+			ON CONFLICT(user_id) DO UPDATE SET token_hash=$2 RETURNING id`, session.UserID, session.Token.Session_Token_Hash)
+
+	err = row.Scan(&session.ID)
+
+	if err != nil {
+		return nil, fmt.Errorf("Inserting session error: %v", err)
+	}
+
+	return &session, nil
 }
 
 // CurrentSession authenticates a user's session whnever one signs
-func (ss *SessionService) CurrentSession(token string) {
-	//TODO: Take the token from the session and validate by hashing it
+func (ss *SessionService) CurrentSession(token string) (*User, error) {
 
-	//1. Hash the token
+	token_hashed := HashToken(token)
 
-	//2. Create a new user var user User
+	var user User
 
-	//3 Join the user and session table and get the user id, password hash and email
+	row := ss.DB.QueryRow(`SELECT users.id, users.email FROM users 
+		JOIN sessions ON users.id = sessions.user_id WHERE sessions.token_hash=$1`, token_hashed)
+
+	err := row.Scan(&user.ID, &user.Email)
+
+	if err != nil {
+		return nil, fmt.Errorf("Issue verifying user session: %v", err)
+	}
+
+	return &user, nil
 }
-
-// TODO create function to hash teh token sha256 encode
