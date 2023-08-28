@@ -54,6 +54,8 @@ func (uc *UserController) CreateUser() gin.HandlerFunc {
 			return
 		}
 
+		// TODO Implement Cookies package
+
 		cookie := http.Cookie{
 			Name:     "pizza-cookie",
 			Value:    session.Token.Session_Token,
@@ -93,6 +95,7 @@ func (uc *UserController) ProcessSignIn() gin.HandlerFunc {
 			return
 		}
 
+		// TODO Implement Cookies package
 		cookie := http.Cookie{
 			Name:     "pizza-cookie",
 			Value:    session.Token.Session_Token,
